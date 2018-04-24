@@ -45,7 +45,7 @@ class MosquitoesEnv(gym.Env):
     def __init__(self):
         self.reward_range = (-np.inf, 0)
         self.action_space = spaces.Box(
-            low=0, high=0.13, shape=(1,), dtype=np.float32)
+            low=0, high=0.03, shape=(1,), dtype=np.float32)
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(4,), dtype=np.float32)
 
