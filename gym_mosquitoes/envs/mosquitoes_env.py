@@ -1,10 +1,13 @@
-from __future__ import division, print_function
+from __future__ import division, print_function, absolute_import
 
 import gym
 from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
 import numpy as np
+import matplotlib.pyplot as plt
+
+from gym_mosquitoes.envs.plotter import Plotter
 
 import logging
 
@@ -24,8 +27,6 @@ SIGMA_S = SIGMA_A
 ZETA = 0.75
 _A = 1 / 5
 _P = 0.2
-# C = 0.016
-# _R = 1 / 52
 _R = 1 / 6
 _R_S = _R
 _R_A = _R
@@ -45,12 +46,15 @@ class MosquitoesEnv(gym.Env):
     def __init__(self):
         self.reward_range = (-np.inf, 0)
         self.action_space = spaces.Box(
-            low=0, high=0.03, shape=(1,), dtype=np.float32)
+            low=0, high=0.1, shape=(1,), dtype=np.float32)
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(4,), dtype=np.float32)
 
+        self.plotter = None
+
     def step(self, action):
-        assert self.action_space.contains(action)
+        assert self.action_space.contains(action), \
+            "Action {} is not a valid action".format(action)
 
         delta_S = self.delta_S(*action)
         delta_I_s = self.delta_I_s(*action)
@@ -76,12 +80,19 @@ class MosquitoesEnv(gym.Env):
         self.M_s += delta_M_s
         self.M_r += delta_M_r
 
+        self.t += 1
+
         reward = -(self.I_s + self.J_s)
         state = self.get_state()
 
         return state, reward, False, {}
 
     def reset(self):
+        if self.plotter is not None:
+            self.plotter.reset()
+
+        self.t = 0
+
         self.M_s = 0.0
         self.M_r = 0.0
         self.S = 0.9
@@ -93,10 +104,29 @@ class MosquitoesEnv(gym.Env):
         self.T = 0.0
         self.T_a = 0.0
         self.R = 0.0
+
         return self.get_state()
 
-    def render(self):
-        print(self.get_state())
+    def render(self, max_x=20000):
+        if self.plotter is None:
+            self.plotter = Plotter(
+                [
+                    "Sensitive strain infections",
+                    "Resistant strain infections",
+                    "Total infections"
+                ],
+                ['g', 'r', 'b'],
+                max_x=max_x
+            )
+
+        self.plotter.update(
+            self.t,
+            [
+                self.I_s,
+                self.J_s,
+                self.I_s + self.J_s
+            ]
+        )
 
     def close(self):
         pass
