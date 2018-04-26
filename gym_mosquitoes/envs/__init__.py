@@ -1,1 +1,2 @@
 from gym_mosquitoes.envs.mosquitoes_env import MosquitoesEnv
+from gym_mosquitoes.envs.mosquitoes_env_rand import RandMosquitoesEnv
