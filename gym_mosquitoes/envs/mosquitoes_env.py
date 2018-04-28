@@ -5,7 +5,6 @@ from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
 import numpy as np
-import matplotlib.pyplot as plt
 
 from gym_mosquitoes.envs.plotter import Plotter
 
@@ -19,8 +18,8 @@ BETA_M = 0.08
 BETA_H = 0.4
 MU_M = 1 / 14
 MU_H = 1 / (45 * 365)
-K_M = 0.5
-K_H = 0.5
+K_M = 0.43
+K_H = 0.43
 OMEGA = 1 / 111
 SIGMA_A = 1 / 100
 SIGMA_S = SIGMA_A
@@ -39,6 +38,8 @@ TAU = 0.5
 TAU_A = TAU
 TAU_S = TAU
 _Q = 0.18
+
+MUTATION_RATE = 0.001
 
 
 class MosquitoesEnv(gym.Env):
@@ -87,7 +88,7 @@ class MosquitoesEnv(gym.Env):
 
         return state, reward, False, {}
 
-    def reset(self):
+    def reset(self, soft_reset=None):
         if self.plotter is not None:
             self.plotter.reset()
 
@@ -224,4 +225,4 @@ class MosquitoesEnv(gym.Env):
     def delta_M_r(self, C):
         a = K_M * BETA_M * (1 - self.M_s - self.M_r) * (self.J_a + self.J_s)
         b = MU_M * self.M_r
-        return a - b
+        return a - b + MUTATION_RATE * self.M_s

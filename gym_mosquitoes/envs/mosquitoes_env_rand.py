@@ -39,6 +39,8 @@ TAU_A = TAU
 TAU_S = TAU
 _Q = None
 
+MUTATION_RATE = 0.001
+
 
 class RandMosquitoesEnv(gym.Env):
 
@@ -245,4 +247,4 @@ class RandMosquitoesEnv(gym.Env):
     def delta_M_r(self, C):
         a = K_M * BETA_M * (1 - self.M_s - self.M_r) * (self.J_a + self.J_s)
         b = MU_M * self.M_r
-        return a - b
+        return a - b + MUTATION_RATE * self.M_s
